@@ -21,3 +21,8 @@ Running log of choices made and why, written as they happen rather than reconstr
 **Context:** considered a branded project name (e.g. "AquaBridge").
 **Decision:** plain, descriptive repo name instead: `water-process-integration-testbed`.
 **Why:** a branded/product-style name reads as a consumer app or learning project to a technical reviewer; a descriptive name reads as an engineering system.
+
+### 2026-09 — Rockwell leg: Micro800 Simulator in CCW, native Ignition driver, no gateway
+**Context:** no physical Micro800 hardware available yet; needed to confirm whether Ignition could reach a Micro800 without a Kepware/KEPServerEX gateway in between, and whether offline simulation was possible at all in CCW.
+**Decision:** use CCW Standard's built-in Micro800 Simulator (emulates a Micro850, free, no hardware required) as the Rockwell leg of Stage A. Ignition connects to it directly via its native Allen-Bradley Micro800 driver (EtherNet/IP) — no gateway needed.
+**Why:** removes the Rockwell leg's biggest open risk (unclear OPC UA path) at zero cost. Two real constraints to plan around: the free simulator runs in 10-minute bursts (restart to continue — fine for development, needs planning around demo recording), and it has no analog I/O simulation, so the VFD speed reference (PumpSpeedRef) is represented as a plain variable the control logic writes to, not a true analog signal. Documented here rather than hidden, since it's a simulator limitation, not a design gap.
