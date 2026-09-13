@@ -1,0 +1,19 @@
+# Node / web
+node_modules/
+.env
+.env.local
+dist/
+build/
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Note: PLC/SCADA binary project archives (.zap18, .ACD, CCW project files, etc.)
+# are intentionally tracked via Git LFS, not ignored. See .gitattributes and CONTRIBUTING.md.
