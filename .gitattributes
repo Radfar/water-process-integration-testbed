@@ -1,0 +1,15 @@
+# Siemens TIA Portal project archives
+*.zap18 filter=lfs diff=lfs merge=lfs -text
+*.ap18 filter=lfs diff=lfs merge=lfs -text
+
+# Rockwell Studio 5000 / CCW
+*.ACD filter=lfs diff=lfs merge=lfs -text
+*.ccwapp filter=lfs diff=lfs merge=lfs -text
+
+# CODESYS project archives
+*.projectarchive filter=lfs diff=lfs merge=lfs -text
+
+# Media
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
