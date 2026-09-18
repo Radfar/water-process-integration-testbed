@@ -137,7 +137,12 @@ The EA build has no UI for this yet — configured by hand on disk (a cURL/Pytho
 
     If the file doesn't exist yet, that's normal — create it.
 
-11. **❌ The direct HTTP format gets silently rejected.** This is the format from IA's own example docs, written for a generic MCP client:
+    > **Two separate issues get conflated here — worth untangling.** It's tempting to blame the Store version for everything that went wrong in this section, but only some of it is Store-specific:
+    > - **Not Store-specific:** the stdio-only config format (next step) is a general Claude Desktop constraint. Anyone on the standard installer hits the exact same silent rejection with a `url`/`http` entry — this has nothing to do with how the app was installed.
+    > - **Actually Store-specific:** the MSIX packaging virtualizes `%APPDATA%`, which is why the config file lives at that different sandboxed path above. MSIX apps also don't fully inherit the system PATH — visible directly in the logs from this setup, where Claude Desktop spawned `cmd.exe` with an explicit ~32-entry PATH list passed in, rather than just resolving `npx` natively. That's the sandbox compensating for PATH isolation, not the stdio/HTTP mismatch.
+    > - Also worth knowing: there's a [community-reported bug](https://github.com/anthropics/claude-code/issues/25600) where local MCP servers are silently ignored entirely on some Store builds — Developer settings shows "No servers added" despite a valid config. That's a harsher version of the problem than what's documented here, since this setup did eventually connect. Worth checking if you hit a wall this guide doesn't explain.
+
+11. **❌ The direct HTTP format gets silently rejected — on any install, Store or standard.** This is the format from IA's own example docs, written for a generic MCP client:
     ```json
     {
       "servers": {
@@ -151,7 +156,7 @@ The EA build has no UI for this yet — configured by hand on disk (a cURL/Pytho
       }
     }
     ```
-    Claude Desktop's config only parses local (stdio) server entries — this format is silently dropped, no error dialog.
+    Claude Desktop's config only parses local (stdio) server entries — this format is silently dropped, no error dialog, regardless of which build you're running.
 
 12. **✅ Bridge it with `mcp-remote`** instead — a small Node package that translates the HTTP endpoint into the stdio interface Claude Desktop expects. Requires Node.js installed:
     ```json
@@ -189,9 +194,12 @@ Every error below was distinct and decodable from the logs — the fix each time
 
 | Symptom | Root cause | Fix |
 |---|---|---|
-| Config silently ignored | Direct `url`/`http` entry — unsupported format | Switch to the `mcp-remote` bridge |
+| Config silently ignored | Direct `url`/`http` entry — unsupported format. **General Claude Desktop limitation, not Store-specific** — happens on any install | Switch to the `mcp-remote` bridge |
+| Can't find `claude_desktop_config.json` at the documented path | **This one IS Store-specific:** MSIX packaging virtualizes `%APPDATA%`, so the Store build's config lives at a different sandboxed path | Use `...AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\` instead, or search your C: drive for the filename |
+| `npx`/Node commands behave oddly, or logs show a `cmd.exe` wrapper with an explicit PATH list | **Also Store-specific:** MSIX sandbox doesn't fully inherit the system PATH | Usually resolves itself since Claude Desktop compensates automatically — if it doesn't, use the full absolute path to `npx.cmd` in the config's `command` field |
 | `404: MCP server not found` | Gateway hadn't reloaded its internal MCP routing table after the config scan | Full Gateway **service** restart |
 | `403: Forbidden` | API key's security level lacked Gateway read/write permission, and/or "Require secure connections" blocked plain HTTP | Grant permissions **and** uncheck the HTTPS requirement |
+| Developer settings shows "No servers added" despite a valid config | A harsher, [separately reported](https://github.com/anthropics/claude-code/issues/25600) Store-version bug where local servers are ignored entirely | Not fully resolved upstream as of this writing — try the standalone installer from claude.ai/download as a workaround if you hit this |
 
 If you hit this failed state along the way:
 
@@ -212,4 +220,3 @@ You should see your Tool listed. **But confirm it's returning real data, not the
 ---
 
 *Full case study and video linked from the main repo README.*
-
