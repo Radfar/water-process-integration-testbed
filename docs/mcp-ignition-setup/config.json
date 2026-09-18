@@ -1,0 +1,18 @@
+{
+  "title": "mcp_example",
+  "version": "1.0.0",
+  "permissions": {
+    "type": "AllOf",
+    "securityLevels": [
+      {
+        "children": [],
+        "name": "Authenticated"
+      }
+    ]
+  },
+  "tools": {
+    "project/mcp_example": "*"
+  },
+  "resources": {},
+  "prompts": {}
+}
